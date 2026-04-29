@@ -13,7 +13,7 @@ Since the translation results are saved to a file, subsequent translation proces
 
 https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 
-### how to install
+### How to install
 
 Install [nim](https://nim-lang.org/)
 
@@ -24,7 +24,7 @@ nim compile --app:console -d:ssl -d:release AzureTranslator.nim
 nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 ```
 
-### get Azure subscription key
+### Get Azure subscription key
 
 Refer to the following website to create a resource and obtain a subscription key.
 
