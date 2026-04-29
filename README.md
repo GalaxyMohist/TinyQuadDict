@@ -3,7 +3,9 @@
 This is a GUI program that extracts words from English text and displays translations into four specified languages for each word.
 
 I created this program to enable comfortable English learning even on the desktop environment of a Raspberry Pi 3, where simply accessing translation websites via a browser can be a strain on system resources.
+
 When translating into English, we implemented a multilingual translation feature so that users could learn other languages at the same time.
+
 To ensure smooth operation even in resource-constrained environments like single-board computers, I developed this program using the lightweight Nim language and NiGui (a Nim GUI library).
 
 The translation feature uses the free plan of Azure Translator, so an Azure account is required to use it.
@@ -25,6 +27,7 @@ nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 ### get Azure subscription key
 
 Refer to the following website to create a resource and obtain a subscription key.
+
 [Quickstart: translate text programmatically](https://learn.microsoft.com/azure/ai-services/translator/text-translation/quickstart/rest-api?tabs=csharp)
 
 
