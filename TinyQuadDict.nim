@@ -201,7 +201,7 @@ window.y=50
 # Definition of window for setting Azure subscription key  
 var windowSetAzureKey=newWindow("Please input Azure subscription key")
 windowSetAzureKey.width=500
-windowSetAzureKey.height=50
+windowSetAzureKey.height=100
 var containerSetAzureKey = newLayoutContainer(Layout_Horizontal)
 var inputAzureKey = newTextBox(azureKey)
 inputAzureKey.width = 300
