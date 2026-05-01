@@ -1,5 +1,7 @@
 # TinyQuadDict
 
+[日本語ReadMe](README-ja.md)
+
 This is a GUI program that extracts words from English text and displays translations into four specified languages for each word.
 
 I created this program to enable comfortable English learning even on the desktop environment of a Raspberry Pi 3, where simply accessing translation websites via a browser can be a strain on system resources.
