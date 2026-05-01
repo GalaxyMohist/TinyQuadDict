@@ -10,4 +10,44 @@
 翻訳機能はAzure Translatorのフリープランを利用しているため、利用にはAzureアカウントが必要です。
 翻訳した結果はファイルに保存するので、2回目以降の翻訳処理ではAzureを経由せず処理時間の短縮が可能です。
 
-![Screenshot 1](https://github.com/GalaxyMohist/LightQuadTranslator/blob/main/image/screenshot1.png?raw=true)
+https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
+
+### How to install
+
+Install [nim](https://nim-lang.org/)
+
+Commands to compile
+```
+nimble install nigui
+nim compile --app:console -d:ssl -d:release AzureTranslator.nim
+nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
+```
+
+### Get Azure subscription key
+
+以下のサイトを参考に、Azureリソースを追加してサブスクリプションキーを取得して下さい。
+
+[Quickstart: translate text programmatically](https://learn.microsoft.com/azure/ai-services/translator/text-translation/quickstart/rest-api?tabs=csharp)
+
+
+
+### Launching TinyQuadDict
+
+```
+./TinyQuadDict
+```
+
+初回起動時は一番上のボタンをクリックしてサブスクリプションキーを登録して下さい。
+
+### Translating words from the command line
+
+```
+./AzureTranslator --from:en --to:ja example
+```
+
+(単語"example"を英語から日本語に翻訳する時のコマンド例です。)
+
+[Language code information](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/language-support)
+
+
+
