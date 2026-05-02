@@ -3,3 +3,5 @@ nimblecache/
 htmldocs/
 logfiles/
 image/
+config.ini
+*.exe

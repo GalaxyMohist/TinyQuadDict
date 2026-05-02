@@ -89,12 +89,11 @@ var logFile : File
 var config = newConfig()
 var configErr = ""
 let configFilename = "config.ini"
-try:
-  config = loadConfig(configFilename)
-except CatchableError:
-  #"Can't open config.ini"
-  configErr = "Error:" & getCurrentExceptionMsg()
-var azureKey = config.getSectionValue("Azure","subscriptionKey")
+let configFilenameDefault = "config-default.ini"
+var azureKey = ""
+
+
+
 
 # declare threads
 
@@ -203,7 +202,7 @@ var windowSetAzureKey=newWindow("Please input Azure subscription key")
 windowSetAzureKey.width=500
 windowSetAzureKey.height=100
 var containerSetAzureKey = newLayoutContainer(Layout_Horizontal)
-var inputAzureKey = newTextBox(azureKey)
+var inputAzureKey = newTextBox("")
 inputAzureKey.width = 300
 var buttonAzureKeyOK = newButton("OK")
 var buttonAzureKeyCancel = newButton("Cancel")
@@ -239,7 +238,7 @@ langContainerEuroSW.add(buttonLegionEuroSW)
 
 var langContainerEuroE = newLayoutContainer(Layout_Vertical)
 langContainerEuroE.width=160
-langContainerEuroE.frame = newFrame("Aflica/East Europe")
+langContainerEuroE.frame = newFrame("Africa/East Europe")
 var comboboxEuroE=newComboBox(euroE)
 var buttonLegionEuroE = newButton("confirm")
 langContainerEuroE.add(comboboxEuroE)
@@ -279,20 +278,6 @@ langContainerHorizontal.add(langContainerAsiaE)
 langContainerHorizontal.add(langContainerAmericas)
 windowLang.add(langContainerHorizontal)
 
-#言語一覧を表示するボタン
-#en,ja,ko,zh-Hans,id,ms,pl,pt
-#var setFromLang = newButton("From")
-
-# start of container of input text
-
-#Azureキー
-#var labelAzureKey=newLabel("Azure Subscription Key")
-#labelAzureKey.fontSize=14
-#labelAzureKey.width=150
-#var textboxAzureKey=newTextBox(azureKey)
-#textboxAzureKey.width=300
-#textboxAzureKey.visible = false
-
 # Button for setting Azure key
 var buttonSetAzureKey=newButton("Set Azure subscription key")
 
@@ -300,7 +285,7 @@ var buttonSetAzureKey=newButton("Set Azure subscription key")
 var labelTransFrom=newLabel("Translate from")
 labelTransFrom.fontSize=14
 labelTransFrom.width=100
-var inputTransFrom = newTextBox(config.getSectionValue("LetMeTranslate","from"))
+var inputTransFrom = newTextBox("")
 inputTransFrom.width=150
 
 # Add a ComboBox fror Language
@@ -366,7 +351,7 @@ buttonLoadClipboard.width=165
 var labelTransTo1=newLabel("Translate to")
 labelTransTo1.fontSize=14
 labelTransTo1.width=90
-var inputTransTo1 = newTextBox(config.getSectionValue("LetMeTranslate","to1"))
+var inputTransTo1 = newTextBox("")
 inputTransTo1.width=150
 
 var buttonSelectLangTo1=newButton("Select Language")
@@ -376,7 +361,7 @@ var buttonSelectLangTo1=newButton("Select Language")
 var labelTransTo2=newLabel("Translate to")
 labelTransTo2.fontSize=14
 labelTransTo2.width=90
-var inputTransTo2 = newTextBox(config.getSectionValue("LetMeTranslate","to2"))
+var inputTransTo2 = newTextBox("")
 inputTransTo2.width=150
 
 var buttonSelectLangTo2=newButton("Select Language")
@@ -385,7 +370,7 @@ var buttonSelectLangTo2=newButton("Select Language")
 var labelTransTo3=newLabel("Translate to")
 labelTransTo3.fontSize=14
 labelTransTo3.width=90
-var inputTransTo3 = newTextBox(config.getSectionValue("LetMeTranslate","to3"))
+var inputTransTo3 = newTextBox("")
 inputTransTo3.width=150
 
 var buttonSelectLangTo3=newButton("Select Language")
@@ -394,7 +379,7 @@ var buttonSelectLangTo3=newButton("Select Language")
 var labelTransTo4=newLabel("Translate to")
 labelTransTo4.fontSize=14
 labelTransTo4.width=90
-var inputTransTo4 = newTextBox(config.getSectionValue("LetMeTranslate","to4"))
+var inputTransTo4 = newTextBox("")
 inputTransTo4.width=150
 
 var buttonSelectLangTo4=newButton("Select Language")
@@ -807,8 +792,6 @@ window.onCloseClick=quitProcess
 
 # main process
 
-
-
 # log output process
 createDir(logDirName)
 if fileExists(logFileName):
@@ -818,7 +801,50 @@ else:
 
 
 
-#NIguiにApp.clipboardText:Stringがある。
+# load config.ini
+
+if configFilename.fileExists == false:
+  try:
+    copyFile(configFilenameDefault,configFilename)
+  except CatchableError:
+    configErr = "Error:" & getCurrentExceptionMsg()
+    logFile.writeLine(configErr)
+
+try:
+  config = loadConfig(configFilename)
+  logFile.writeLine("success: loading config.ini")
+except CatchableError:
+  #"Can't open config.ini"
+  configErr = "Error:" & getCurrentExceptionMsg()
+  logFile.writeLine(configErr)
+
+logFile.writeLine("azureKey: " & azureKey)
+azureKey = config.getSectionValue("Azure","subscriptionKey")
+logFile.writeLine("azureKey: " & azureKey)
+if azureKey == "":
+  window.alert("Azure subscription key is empty. Please set key.")
+inputAzureKey.text = azureKey
+
+#logFile.writeLine(azureKey)
+#logFile.writeLine(config.getSectionValue("LetMeTranslate","from"))
+logFile.writeLine("from: " & config.getSectionValue("LetMeTranslate","from"))
+
+
+inputTransFrom.text = config.getSectionValue("LetMeTranslate","from")
+inputTransTo1.text = config.getSectionValue("LetMeTranslate","to1")
+inputTransTo2.text = config.getSectionValue("LetMeTranslate","to2")
+inputTransTo3.text = config.getSectionValue("LetMeTranslate","to3")
+inputTransTo4.text = config.getSectionValue("LetMeTranslate","to4")
+
+#echo(config.getSectionValue("LetMeTranslate","from"))
+#logFile.writeLine(config.getSectionValue("LetMeTranslate","from"))
+
+
+
+
+
+
+#NiGuiにApp.clipboardText:Stringがある。
 #textArea1.text = app.clipboardText()
 getClipboard()
 
