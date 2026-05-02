@@ -538,15 +538,14 @@ proc translateClipboard(ev:ClickEvent)=
 
 
 
-#AzureTranslaterや辞書引き等の翻訳処理を実行する関数
-
-#百度のアカウントが取れたら翻訳APIが使える。パラメータ名称等が参考になる。
+#Baidu translate API (Candidate features)
 #https://fanyi-api.baidu.com/product/113
 
-#Azure speech services(大変そう)
+#Azure speech services (Candidate features)
 #https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/
 #https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/spx-basics?tabs=linuxinstall
 
+# Access Azure to retrieve the translation results.
 proc translateCore(mode: string, langFrom: string, langTo: string, inputWord: string): string =
   ## Call AzureTranslater each os process.
 
@@ -585,7 +584,7 @@ proc translateCore(mode: string, langFrom: string, langTo: string, inputWord: st
 
   result = translatedText
 
-
+# Thread function does when performing a translation
 proc procTranslaterThread1(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.} =
   channel1.send(translateCore(args.mode,args.langFrom,args.langTo,args.inputWord))
 proc procTranslaterThread2(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.} =
@@ -596,10 +595,8 @@ proc procTranslaterThread4(args: tuple[mode,langFrom,langTo, inputWord: string])
   channel4.send(translateCore(args.mode,args.langFrom,args.langTo,args.inputWord))
 
 
-  
-#翻訳処理
+# Main function for translation 
 proc translate() =
-#同様の処理をエンターキーイベントにも実装する
  
   if inputTransTo1.text == "" and inputTransTo2.text == "" and inputTransTo3.text == "" and inputTransTo4.text == "":
     #window.alert("言語指定(Translate to)が全て空白です。最低でも一つは入力して下さい。")
@@ -622,12 +619,11 @@ proc translate() =
     config.setSectionKey("LetMeTranslate", "to4", inputTransTo4.text)
     config.writeConfig(configFilename)
     
-    #文字列をスペースで区切って単語に分割する
     for word in inputString.splitWhitespace(maxsplit = -1):
       #echo "split result:",word  
-      #translateモジュールの結果が改行付きで返って来るのでaddLineではなくaddTextを使う
       
-      #各翻訳スレッドを開始
+      
+      # Execute translaton threads
       if inputTransTo1.text != "":
         createThread(threadTranslater1, procTranslaterThread1, ("mode_azure",inputTransFrom.text, inputTransTo1.text, word))        
       if inputTransTo2.text != "":
@@ -637,7 +633,8 @@ proc translate() =
       if inputTransTo4.text != "":
         createThread(threadTranslater4, procTranslaterThread4, ("mode_azure",inputTransFrom.text, inputTransTo4.text, word))
         
-      #各翻訳スレッドの処理結果を取得
+      # Get translation results of each threads.
+      # Results contain \n. So use addText() instead addLine().
       if inputTransTo1.text != "":
         joinThread(threadTranslater1)
         output1 = channel1.recv()
@@ -825,26 +822,13 @@ if azureKey == "":
   window.alert("Azure subscription key is empty. Please set key.")
 inputAzureKey.text = azureKey
 
-#logFile.writeLine(azureKey)
-#logFile.writeLine(config.getSectionValue("LetMeTranslate","from"))
-logFile.writeLine("from: " & config.getSectionValue("LetMeTranslate","from"))
-
-
 inputTransFrom.text = config.getSectionValue("LetMeTranslate","from")
 inputTransTo1.text = config.getSectionValue("LetMeTranslate","to1")
 inputTransTo2.text = config.getSectionValue("LetMeTranslate","to2")
 inputTransTo3.text = config.getSectionValue("LetMeTranslate","to3")
 inputTransTo4.text = config.getSectionValue("LetMeTranslate","to4")
 
-#echo(config.getSectionValue("LetMeTranslate","from"))
-#logFile.writeLine(config.getSectionValue("LetMeTranslate","from"))
-
-
-
-
-
-
-#NiGuiにApp.clipboardText:Stringがある。
+#"app.clipboardText:String" is NiGui function
 #textArea1.text = app.clipboardText()
 getClipboard()
 
