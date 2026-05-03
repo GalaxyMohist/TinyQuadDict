@@ -22,10 +22,12 @@ import std/os
 
 # Loading config.ini
 let configFilename = "config.ini"
+let launguageListName = "languageList.txt"
 var config: Config
 var subscriptionKey = ""
 var paramFrom = "en"
 var paramTo = "ja"
+var commandError = false
 
 if configFilename.fileExists:
   config = loadConfig(configFilename)
@@ -76,7 +78,7 @@ proc translate(word: string): string =
     headers*: HttpHeaders
     bodyStream*: Stream
   ]#
-  echo response.status
+  #echo response.status
 
   #Azureからの返答をログファイルに出力
   # Logging Azure responce
@@ -282,6 +284,12 @@ var targetText = ""
 # Analyze input command. 
 # Display an error and sample commands if no arguments are provided.
 # If there is only one argument, it is regarded as the search string, and which language to be translated into any language is supplemented from 'config.ini'.
+
+#let appDir = getAppDir()
+#echo "getAppDir(): " & appDir
+#setCurrentDir(appDir)
+#echo "setCurrentDir(" & appDir & ")"
+
 var parser = initOptParser()
 var seqArgs = parser.remainingArgs
 var argsLength=seqArgs.len
@@ -292,8 +300,13 @@ while true:
   of cmdEnd:
     break
   of cmdShortOption, cmdLongOption:
-    if parser.val == "":
-      echo "Option: ", parser.key, " is empty."
+    if parser.key == "list":
+      if launguageListName.fileExists:
+        let fileLanguage = open(launguageListName)
+        echo readAll(fileLanguage)
+      else:
+        echo launguageListName & " not found. Try download this program again."
+      quit(0)
     elif parser.key == "key":
       subscriptionKey = parser.val
       #echo "subscriptionKey = ", parser.val
@@ -303,14 +316,29 @@ while true:
     elif parser.key == "to":
       paramTo = parser.val
       #echo "paramTo = ", parser.val
+    elif parser.key == "":
+      discard
     else:
-      echo "Option: and value: ", parser.key, ", ", parser.val
+      discard
   of cmdArgument:
     #echo "Argument: ", parser.key
     targetText = targetText & parser.key & " "
+    
+#parseopt
+#let launguageListName = "launguageList.txt"
+#if launguageListName.FileExists:
+#echo readAll("launguageList.txt")
+
+targetText.removeSuffix(' ')
+targetText = targetText.strip
+#echo "input text=" & targetText
+
 
 # Construction of params for Azure
-if argsLength > 0 :
+if targetText == "":
+  commandError = true
+  echo "Input word is empty."
+elif argsLength > 0 :
   var params = "&from=" & paramFrom & "&to=" & paramTo
 
   # "Dictionary mode" support English only.
@@ -324,12 +352,6 @@ if argsLength > 0 :
     constructedUrl = baseUrl & modeTranUrl & params
 
   #echo constructedUrl
-
-  targetText.removeSuffix(' ')
-  targetText = targetText.strip
-  #echo "input text=" & targetText
-
-
 
 
 
@@ -443,7 +465,11 @@ if argsLength > 0 :
 
   # output result of translattion
   echo resultText
+  
 
-else:
+
+#else:
+if commandError:
   echo "command is not correct."
   echo """(command example) ./AzureTranslator --from:en --to:zh-Hans example"""
+  echo """(show Language List) ./AzureTranslator --list"""

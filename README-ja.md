@@ -1,6 +1,63 @@
 # TinyQuadDict
 
-英語文章から単語を抽出し、単語それぞれに対して指定した４つの言語の翻訳結果を表示するGUIプログラムです。
+英語のようなスペースで単語が区切られた文章から単語を抽出し、単語それぞれに対して指定した４つの言語の翻訳結果を表示するGUIプログラムです。
+
+対応言語
+
+- [Language name]		[Language Code]
+- Afrikaans 		af
+- Arabic 			ar
+- Bangla 			bn
+- Bosnian (Latin) 	bs
+- Bulgarian 		bg
+- Catalan 		ca
+- Chinese Simplified 	zh-Hans
+- Croatian 		hr
+- Czech 			cs
+- Danish 			da
+- Dutch 			nl
+- English 		en
+- Finnish 		fi
+- French 			fr
+- German 			de
+- Greek 			el
+- Haitian Creole 		ht
+- Hebrew 			he
+- Hmong Daw (Latin) 	mww
+- Hungarian 		hu
+- Icelandic 		is
+- Indonesian 		id
+- Italian 		it
+- Japanese 		ja
+- Klingon 		tlh-Latn
+- Korean 			ko
+- Latvian 		lv
+- Lithuanian 		lt
+- Malay (Latin) 		ms
+- Maltese 		mt
+- Norwegian Bokmål 	nb
+- Persian 		fa
+- Polish 			pl
+- Portuguese (Brazil) 	pt
+- Romanian 		ro
+- Russian 		ru
+- Serbian (Latin) 	sr-Latn
+- Slovak 			sk
+- Slovenian 		sl
+- Spanish 		es
+- Swahili (Latin) 	sw
+- Swedish 		sv
+- Tamil 			ta
+- Thai 			th
+- Turkish 		tr
+- Ukrainian 		uk
+- Urdu 			ur
+- Vietnamese 		vi
+- Welsh 			cy
+
+[Azure language support](https://docs.microsoft.com/azure/cognitive-services/translator/language-support)
+
+https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 
 ブラウザから翻訳サイトを参照するだけでも負担がかかるRaspberry Pi 3のデスクトップ環境でも快適に英語の学習を行うためにこのプログラムを作成しました。
 
@@ -10,20 +67,18 @@
 翻訳機能はAzure Translatorのフリープランを利用しているため、利用にはAzureアカウントが必要です。
 翻訳した結果はファイルに保存するので、2回目以降の翻訳処理ではAzureを経由せず処理時間の短縮が可能です。
 
-https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
+### インストール方法
 
-### How to install
+[nim](https://nim-lang.org/)をインストールして下さい。
 
-Install [nim](https://nim-lang.org/)
-
-Commands to compile
+コンパイルコマンド
 ```
 nimble install nigui
 nim compile --app:console -d:ssl -d:release AzureTranslator.nim
 nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 ```
 
-### Get Azure subscription key
+### Azureサブスクリプションキーの取得
 
 以下のサイトを参考に、Azureリソースを追加してサブスクリプションキーを取得して下さい。
 
@@ -31,7 +86,7 @@ nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 
 
 
-### Launching TinyQuadDict
+### TinyQuadDictを起動
 
 ```
 ./TinyQuadDict
@@ -39,15 +94,21 @@ nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 
 初回起動時は一番上のボタンをクリックしてサブスクリプションキーを登録して下さい。
 
-### Translating words from the command line
+### CLIから単語の翻訳を行うコマンド
+
+対応言語の一覧を表示
+
+```
+./AzureTranslator --list
+```
+
+単語"example"を英語から日本語に翻訳。
 
 ```
 ./AzureTranslator --from:en --to:ja example
 ```
 
-(単語"example"を英語から日本語に翻訳する時のコマンド例です。)
 
-[Language code information](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/language-support)
 
 
 

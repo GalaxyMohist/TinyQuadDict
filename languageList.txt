@@ -1,0 +1,50 @@
+[Language name]		[Language Code]
+Afrikaans 		af
+Arabic 			ar
+Bangla 			bn
+Bosnian (Latin) 	bs
+Bulgarian 		bg
+Catalan 		ca
+Chinese Simplified 	zh-Hans
+Croatian 		hr
+Czech 			cs
+Danish 			da
+Dutch 			nl
+English 		en
+Finnish 		fi
+French 			fr
+German 			de
+Greek 			el
+Haitian Creole 		ht
+Hebrew 			he
+Hmong Daw (Latin) 	mww
+Hungarian 		hu
+Icelandic 		is
+Indonesian 		id
+Italian 		it
+Japanese 		ja
+Klingon 		tlh-Latn
+Korean 			ko
+Latvian 		lv
+Lithuanian 		lt
+Malay (Latin) 		ms
+Maltese 		mt
+Norwegian Bokmål 	nb
+Persian 		fa
+Polish 			pl
+Portuguese (Brazil) 	pt
+Romanian 		ro
+Russian 		ru
+Serbian (Latin) 	sr-Latn
+Slovak 			sk
+Slovenian 		sl
+Spanish 		es
+Swahili (Latin) 	sw
+Swedish 		sv
+Tamil 			ta
+Thai 			th
+Turkish 		tr
+Ukrainian 		uk
+Urdu 			ur
+Vietnamese 		vi
+Welsh 			cy

@@ -58,19 +58,19 @@ var buttonStatus = langNone
 # Sequences of languade code
 var
   # language name suported dictionary search
-  euroN : seq[string] = @["Danish","English","Finnish","Icelandic","Latvian","Lithuanian","Norwegian","Swedish","Welsh"]
-  euroSW : seq[string] = @["Catalan","Dutch","French (Canada)","German","Greek","Maltese","Portuguese (Brazil)","Serbian (Latin)","Spanish"]
-  euroE : seq[string] = @["Bosnian (Latin)","Bulgarian","Croatian","Czech","Hungarian","Polish","Romanian","Russian","Slovak","Ukrainian"]
+  euroN : seq[string] = @["Danish","English","Finnish","Icelandic","Latvian","Lithuanian","Norwegian Bokmål","Swedish","Welsh"]
+  euroSW : seq[string] = @["Catalan","Dutch","French","German","Greek","Italian","Maltese","Portuguese (Brazil)","Serbian (Latin)","Spanish"]
+  euroE : seq[string] = @["Bosnian (Latin)","Bulgarian","Croatian","Czech","Hungarian","Polish","Romanian","Russian","Slovak","Slovenian","Ukrainian"]
   asiaW : seq[string] = @["Afrikaans","Arabic","Hebrew","Persian","Turkish"]
-  asiaE : seq[string] = @["Bangla","Chinese Simplified","Hindi","Hmong Daw","Indonesian","Japanese","Korean","Malay","Swahili","Thai","Tamil","Urdu","Vietnamese"]
+  asiaE : seq[string] = @["Bangla","Chinese Simplified","Hindi","Hmong Daw (Latin)","Indonesian","Japanese","Korean","Malay (Latin)","Swahili (Latin)","Tamil","Thai","Urdu","Vietnamese"]
   americas : seq[string] = @["English","French (Canada)","Haitian Creole","Klingon","Portuguese (Brazil)"]
   
   # Azure language code
   euroNCode : seq[string] = @["da","en","fi","is","lv","lt","nb","sv","cy"]
-  euroSWCode : seq[string] = @["ca","nl","fr","de","el","mt","pt","sr-Latn","es"]
-  euroECode : seq[string] = @["bs","bg","hr","cs","hu","pl","ro","ru","sk","uk"]
+  euroSWCode : seq[string] = @["ca","nl","fr","de","el","it","mt","pt","sr-Latn","es"]
+  euroECode : seq[string] = @["bs","bg","hr","cs","hu","pl","ro","ru","sk","sl","uk"]
   asiaWCode : seq[string] = @["af","ar","he","fa","tr"]
-  asiaECode : seq[string] = @["bn","zh-Hans","hi","mww","id","ja","ko","ms","sw","th","ta","ur","vi"]
+  asiaECode : seq[string] = @["bn","zh-Hans","hi","mww","id","ja","ko","ms","sw","ta","th","ur","vi"]
   americasCode : seq[string] = @["en","fr","ht","tlh-Latn","pt"]
   
 # set currentDir

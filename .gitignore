@@ -3,5 +3,8 @@ nimblecache/
 htmldocs/
 logfiles/
 image/
+etc/
 config.ini
 *.exe
+AzureTranslator
+TinyQuadDict

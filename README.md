@@ -2,7 +2,64 @@
 
 [日本語ReadMe](README-ja.md)
 
-This is a GUI program that extracts words from English text and displays translations into four specified languages for each word.
+This is a GUI program that extracts words from text separated by spaces, such as in English, and displays the translation results for each word in four specified languages.
+
+Language Support
+
+- [Language name]		[Language Code]
+- Afrikaans 		af
+- Arabic 			ar
+- Bangla 			bn
+- Bosnian (Latin) 	bs
+- Bulgarian 		bg
+- Catalan 		ca
+- Chinese Simplified 	zh-Hans
+- Croatian 		hr
+- Czech 			cs
+- Danish 			da
+- Dutch 			nl
+- English 		en
+- Finnish 		fi
+- French 			fr
+- German 			de
+- Greek 			el
+- Haitian Creole 		ht
+- Hebrew 			he
+- Hmong Daw (Latin) 	mww
+- Hungarian 		hu
+- Icelandic 		is
+- Indonesian 		id
+- Italian 		it
+- Japanese 		ja
+- Klingon 		tlh-Latn
+- Korean 			ko
+- Latvian 		lv
+- Lithuanian 		lt
+- Malay (Latin) 		ms
+- Maltese 		mt
+- Norwegian Bokmål 	nb
+- Persian 		fa
+- Polish 			pl
+- Portuguese (Brazil) 	pt
+- Romanian 		ro
+- Russian 		ru
+- Serbian (Latin) 	sr-Latn
+- Slovak 			sk
+- Slovenian 		sl
+- Spanish 		es
+- Swahili (Latin) 	sw
+- Swedish 		sv
+- Tamil 			ta
+- Thai 			th
+- Turkish 		tr
+- Ukrainian 		uk
+- Urdu 			ur
+- Vietnamese 		vi
+- Welsh 			cy
+
+[Azure language support](https://docs.microsoft.com/azure/cognitive-services/translator/language-support)
+
+https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 
 I created this program to enable comfortable English learning even on the desktop environment of a Raspberry Pi 3, where simply accessing translation websites via a browser can be a strain on system resources.
 
@@ -13,7 +70,7 @@ To ensure smooth operation even in resource-constrained environments like single
 The translation feature uses the free plan of Azure Translator, so an Azure account is required to use it.
 Since the translation results are saved to a file, subsequent translation processes do not go through Azure, reducing processing time.
 
-https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
+
 
 ### How to install
 
@@ -45,12 +102,20 @@ When you launch the app for the first time, please click the top button to regis
 
 ### Translating words from the command line
 
+Show list of language.
+
+```
+./AzureTranslator --list
+```
+
+Translate the word “example” from English to Simplified Chinese.
+
 ```
 ./AzureTranslator --from:en --to:zh-Hans example
 ```
 
-(Translate the word “example” from English to Simplified Chinese.)
 
-[Language code information](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/language-support)
+
+
 
 
