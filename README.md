@@ -4,7 +4,7 @@
 
 This is a GUI program that extracts words from text separated by spaces, such as in English, and displays the translation results for each word in four specified languages.
 
-Language Support
+[Language Support](https://docs.microsoft.com/azure/cognitive-services/translator/language-support)
 
 - [Language name]		[Language Code]
 - Afrikaans 		af
@@ -56,8 +56,6 @@ Language Support
 - Urdu 			ur
 - Vietnamese 		vi
 - Welsh 			cy
-
-[Azure language support](https://docs.microsoft.com/azure/cognitive-services/translator/language-support)
 
 https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 

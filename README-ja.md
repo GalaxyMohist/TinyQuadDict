@@ -2,7 +2,7 @@
 
 英語のようなスペースで単語が区切られた文章から単語を抽出し、単語それぞれに対して指定した４つの言語の翻訳結果を表示するGUIプログラムです。
 
-対応言語
+[対応言語](https://docs.microsoft.com/azure/cognitive-services/translator/language-support)
 
 - [Language name]		[Language Code]
 - Afrikaans 		af
@@ -54,8 +54,6 @@
 - Urdu 			ur
 - Vietnamese 		vi
 - Welsh 			cy
-
-[Azure language support](https://docs.microsoft.com/azure/cognitive-services/translator/language-support)
 
 https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 
