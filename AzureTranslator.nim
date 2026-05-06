@@ -281,7 +281,7 @@ var targetText = ""
 #paramFrom
 #paramTo
 
-# Analyze input command. 
+# Analyze input command.
 # Display an error and sample commands if no arguments are provided.
 # If there is only one argument, it is regarded as the search string, and which language to be translated into any language is supplemented from 'config.ini'.
 
@@ -323,7 +323,7 @@ while true:
   of cmdArgument:
     #echo "Argument: ", parser.key
     targetText = targetText & parser.key & " "
-    
+
 #parseopt
 #let launguageListName = "launguageList.txt"
 #if launguageListName.FileExists:
@@ -372,20 +372,20 @@ elif argsLength > 0 :
   var limitCount = 0
   var needResetCountTime = false
   var fileLimitCountExists = fileLimitCountName.fileExists
-  
+
   if fileLimitCountExists:
     #ar outfile = open("azure_responce.log",fmWrite)
     fileLimitCount = open(fileLimitCountName,fmRead)
     timeLastExecute = fileLimitCount.readLine()
     limitCount = parseInt(fileLimitCount.readLine())
     #echo timeLastExecute
-  
+
     #len(targetText)
     fileLimitCount.close()
-    
+
     #let dt = dateTime(2000, mJan, 01, 00, 00, 00, 00, utc())
     #doAssert dt == parse("2000-01-01", "yyyy-MM-dd", utc())
-    
+
     #let timeLast = parse("2026-04-24 08:52:37","yyyy-MM-dd HH:mm:ss")
     let timeLast = parse(timeLastExecute,"yyyy-MM-dd HH:mm:ss")
     #echo "[timeLast]" & timeLast.format("yyyy-MM-dd HH:mm:ss")
@@ -393,14 +393,14 @@ elif argsLength > 0 :
     #echo "[timeNow]" & timeNow.format("yyyy-MM-dd HH:mm:ss")
     #let time1HourAgo = timeNow - 1.hours
     let time1minAgo = timeNow -  1.minutes
-    
+
     if timeLast < time1minAgo:
       #echo "Over 1min. LimitCount will reset."
       needResetCountTime = true
     else:
       discard
       #echo "Current LimitCount:" & $limitCount
-    
+
   #let between = between(timeLast,timeNow)
   #echo $between
   #if between > initTimeInterval(hours = 1):
@@ -409,9 +409,9 @@ elif argsLength > 0 :
   #  echo "counting"
   #echo $between.inMinutes
   #echo $between.minutes
-  
-  
-  
+
+
+
   #echo time_now.format
   #2026-04-24T08:52:37+09:00
 
@@ -421,7 +421,7 @@ elif argsLength > 0 :
   if fileExists(logFileName):
     #logFile = open(logFileName,fmRead)
     for line in logFileName.lines:
-      if line.startsWith(targetText):
+      if line.startsWith(targetText & "="):
         #echo "[ResultLog: Match] " & line
         resultExist = true
         resultText = line
@@ -438,10 +438,10 @@ elif argsLength > 0 :
       #echo "一分内に33300文字以上を翻訳することは出来ません。一分毎にカウントはリセットされるのでお待ち下さい。"
       echo "With the Azure Free Tier, you cannot translate more than 33,300 characters within a minute. The count resets every minute, so please wait."
       quit()
-    
+
     let tranlateResult = targetText & "=" & translate(targetText)
     resultText = tranlateResult
-    
+
     fileLimitCount = open(fileLimitCountName,fmWrite)
     if needResetCountTime or fileLimitCountExists == false :
       fileLimitCount.writeLine(now().format("yyyy-MM-dd HH:mm:ss"))
@@ -465,7 +465,7 @@ elif argsLength > 0 :
 
   # output result of translattion
   echo resultText
-  
+
 
 
 #else:
