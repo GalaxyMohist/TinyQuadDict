@@ -1,10 +1,10 @@
 # TinyQuadDict
 
-[日本語ReadMe](README-ja.md)
+[英语ReadMe](README.md)
 
-This is a GUI program that extracts words from text separated by spaces, such as in English, and displays the translation results for each word in four specified languages.
+这是一个GUI程序，可以从用空格分隔的文本中提取单词，例如英语，并以四种指定语言显示每个单词的翻译结果。
 
-[Language Support](https://docs.microsoft.com/azure/cognitive-services/translator/language-support)
+[语言支持](https://docs.microsoft.com/azure/cognitive-services/translator/language-support)
 
 - [Language name]		[Language Code]
 - Afrikaans 		af
@@ -59,15 +59,6 @@ This is a GUI program that extracts words from text separated by spaces, such as
 
 https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 
-I created this program to enable comfortable English learning even on the desktop environment of a Raspberry Pi 3, where simply accessing translation websites via a browser can be a strain on system resources.
-
-When translating into any language, I implemented a multilingual translation feature so that users could learn other languages at the same time.
-
-To ensure smooth operation even in resource-constrained environments like single-board computers, I developed this program using the lightweight Nim language and NiGui (a Nim GUI library).
-
-The translation feature uses the free plan of Azure Translator, so an Azure account is required to use it.
-Since the translation results are saved to a file, subsequent translation processes do not go through Azure, reducing processing time.
-
 我创建了这个程序，即使在Raspberry Pi 3的桌面环境中也能轻松学习英语，因为简单地通过浏览器访问翻译网站可能会对系统资源造成压力。
 
 当翻译成任何语言时，我实现了一个多语言翻译功能，这样用户就可以同时学习其他语言。
@@ -78,43 +69,43 @@ Since the translation results are saved to a file, subsequent translation proces
 由于翻译结果保存到文件中，因此后续翻译过程不会通过Azure，从而减少了处理时间。
 
 
-### How to install
+### 如何安装
 
-Install [nim](https://nim-lang.org/)
+安装 [nim](https://nim-lang.org/)
 
-Commands to compile
+要编译的命令
 ```
 nimble install nigui
 nim compile --app:console -d:ssl -d:release AzureTranslator.nim
 nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 ```
 
-### Get Azure subscription key
 
-Refer to the following website to create a resource and obtain a subscription key.
+### 获取Azure订阅密钥
 
-[Quickstart: translate text programmatically](https://learn.microsoft.com/azure/ai-services/translator/text-translation/quickstart/rest-api?tabs=csharp)
+请参阅以下网站以创建资源并获取订阅密钥。
+
+[快速入门：以编程方式翻译文本](https://learn.microsoft.com/azure/ai-services/translator/text-translation/quickstart/rest-api?tabs=csharp)
 
 
-
-### Launching TinyQuadDict
+### 启动 TinyQuadDict
 
 ```
 ./TinyQuadDict
 ```
 
-When you launch the app for the first time, please click the top button to register your subscription key.
+当您首次启动应用程序时，请单击顶部按钮注册您的订阅密钥。
 
 
-### Translating words from the command line
+### 从CLI翻译单词
 
-Show list of language.
+显示语言列表。
 
 ```
 ./AzureTranslator --list
 ```
 
-Translate the word “example” from English to Simplified Chinese.
+将“example”一词从英语翻译成简体中文。
 
 ```
 ./AzureTranslator --from:en --to:zh-Hans example
