@@ -57,7 +57,7 @@
 
 https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 
-ブラウザから翻訳サイトを参照するだけでも負担がかかるRaspberry Pi 3のデスクトップ環境でも快適に英語の学習を行うためにこのプログラムを作成しました。
+ブラウザから翻訳サイトを参照するだけでも負担がかかるRaspberry Pi 3のようなデスクトップ環境でも、快適に語学の学習を行うために私はこのプログラムを作成しました。
 
 英語を母国語に翻訳する際に、ついでに他の言語も学べるようにしたいと考えて複数言語への翻訳機能を実装しています。
 シングルボードコンピュータのようなリソースに余裕が無い環境でも快適に動作するように、軽量なNim言語とNiGui(Nim GUIライブラリ)で開発を行っています。
@@ -105,8 +105,3 @@ nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 ```
 ./AzureTranslator --from:en --to:ja example
 ```
-
-
-
-
-
