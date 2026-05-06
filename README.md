@@ -1,5 +1,7 @@
 # TinyQuadDict
 
+[中文(简体)ReadMe](README-zh-Hans.md)
+
 [日本語ReadMe](README-ja.md)
 
 This is a GUI program that extracts words from text separated by spaces, such as in English, and displays the translation results for each word in four specified languages.
