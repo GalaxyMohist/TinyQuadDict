@@ -73,9 +73,12 @@ https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 
 安装 [nim](https://nim-lang.org/)
 
+（仅限Linux）请通过软件包管理器安装xsel。
+
 要编译的命令
 ```
 nimble install nigui
+nimble install libclip
 nim compile --app:console -d:ssl -d:release AzureTranslator.nim
 nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 ```

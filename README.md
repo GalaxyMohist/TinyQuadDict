@@ -70,23 +70,17 @@ To ensure smooth operation even in resource-constrained environments like single
 The translation feature uses the free plan of Azure Translator, so an Azure account is required to use it.
 Since the translation results are saved to a file, subsequent translation processes do not go through Azure, reducing processing time.
 
-我创建了这个程序，即使在Raspberry Pi 3的桌面环境中也能轻松学习英语，因为简单地通过浏览器访问翻译网站可能会对系统资源造成压力。
-
-当翻译成任何语言时，我实现了一个多语言翻译功能，这样用户就可以同时学习其他语言。
-
-为了确保即使在单板计算机等资源受限的环境中也能顺利运行，我使用轻量级的Nim语言和NiGui（Nim GUI库）开发了这个程序。
-
-翻译功能使用Azure Translator的免费计划，因此需要Azure帐户才能使用它。
-由于翻译结果保存到文件中，因此后续翻译过程不会通过Azure，从而减少了处理时间。
-
 
 ### How to install
 
 Install [nim](https://nim-lang.org/)
 
+(Linux Only) Install xsel with your package manager.
+
 Commands to compile
 ```
 nimble install nigui
+nimble install libclip
 nim compile --app:console -d:ssl -d:release AzureTranslator.nim
 nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 ```

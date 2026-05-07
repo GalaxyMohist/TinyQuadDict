@@ -69,9 +69,12 @@ https://github.com/user-attachments/assets/84584b1e-e5cb-47ae-8d73-a5b0e794eea5
 
 [nim](https://nim-lang.org/)をインストールして下さい。
 
+(Linux限定) パッケージマネージャーからxselをインストールして下さい。
+
 コンパイルコマンド
 ```
 nimble install nigui
+nimble install libclip
 nim compile --app:console -d:ssl -d:release AzureTranslator.nim
 nim compile --threads:on --app:gui -d:release TinyQuadDict.nim
 ```

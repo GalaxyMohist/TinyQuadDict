@@ -8,6 +8,9 @@
 
 # compile command
 # nimble install nigui
+# nimble install libclip
+# (Linux Only) Install xsel with your package manager.
+#
 # (for debug)
 #   nim compile --threads:on --run TinyQuadDict.nim
 # (for release)
@@ -30,7 +33,7 @@
 
 
 # TODO
-# 
+#
 # Azureキーが間違っていたらエラーポップアップを表示する。
 # AzureTransratorのエラー(検索結果ナシ、SSL未対応でコンパイルされている等)もポップアップ表示する
 # Translater()の処理に辞書とAzureのモード選択を実装する。
@@ -43,12 +46,13 @@
 # module list
 import nigui
 import nigui/msgbox
+import libclip/clipboard
 import std/[parsecfg, os,times]
 import net
 import strutils
 import osproc
 
-type  
+type
   ButtonEnum = enum
     langNone,langFrom,langTo1, langTo2, langTo3, langTo4
 
@@ -64,7 +68,7 @@ var
   asiaW : seq[string] = @["Afrikaans","Arabic","Hebrew","Persian","Turkish"]
   asiaE : seq[string] = @["Bangla","Chinese Simplified","Hindi","Hmong Daw (Latin)","Indonesian","Japanese","Korean","Malay (Latin)","Swahili (Latin)","Tamil","Thai","Urdu","Vietnamese"]
   americas : seq[string] = @["English","French (Canada)","Haitian Creole","Klingon","Portuguese (Brazil)"]
-  
+
   # Azure language code
   euroNCode : seq[string] = @["da","en","fi","is","lv","lt","nb","sv","cy"]
   euroSWCode : seq[string] = @["ca","nl","fr","de","el","it","mt","pt","sr-Latn","es"]
@@ -72,7 +76,7 @@ var
   asiaWCode : seq[string] = @["af","ar","he","fa","tr"]
   asiaECode : seq[string] = @["bn","zh-Hans","hi","mww","id","ja","ko","ms","sw","ta","th","ur","vi"]
   americasCode : seq[string] = @["en","fr","ht","tlh-Latn","pt"]
-  
+
 # set currentDir
 var appDir = getAppDir()
 var currentDir = getCurrentDir()
@@ -92,65 +96,72 @@ let configFilename = "config.ini"
 let configFilenameDefault = "config-default.ini"
 var azureKey = ""
 
-
-
+var inputClipboardAuto = true
+var runningTranslation = false
 
 # declare threads
 
-var threadTranslater1*: Thread[tuple[mode,langFrom,langTo, inputWord: string]] 
+var threadBackground*: Thread[void]
+  ## thread for background process
+
+var threadTranslater1*: Thread[tuple[mode,langFrom,langTo, inputWord: string]]
   ## `threadTranslater1` is thread type for translator proc
-  
-var threadTranslater2*: Thread[tuple[mode,langFrom,langTo, inputWord: string]] 
+
+var threadTranslater2*: Thread[tuple[mode,langFrom,langTo, inputWord: string]]
   ## `threadTranslater2` is thread type for translator proc
-  
-var threadTranslater3*: Thread[tuple[mode,langFrom,langTo, inputWord: string]] 
+
+var threadTranslater3*: Thread[tuple[mode,langFrom,langTo, inputWord: string]]
   ## `threadTranslater3` is thread type for translator proc
-  
+
 var threadTranslater4*: Thread[tuple[mode,langFrom,langTo, inputWord: string]]
   ## `threadTranslater4` is thread type for translator proc
-  
+
 # declare channels
 
-var channel1*: Channel[string] 
+var channel1*: Channel[string]
   ## This channel contains translated text for 1st language.
-  
-var channel2*: Channel[string] 
+
+var channel2*: Channel[string]
   ## This channel contains translated text for 2nd language.
-  
-var channel3*: Channel[string] 
+
+var channel3*: Channel[string]
   ## This channel contains translated text for 3rd language.
-  
-var channel4*: Channel[string] 
+
+var channel4*: Channel[string]
   ## This channel contains translated text for 4th language.
-  
+
 # declare procedures
 
-proc getClipboard*()
+
+proc getClipboard(): string
+  ## outdated proc
   ## copy clipboard to input textarea.
 
 proc translateClipboard*()
   ## translate from input textarea.
-  
+
 proc translateClipboard*(ev:ClickEvent)
   ## translate from input textarea. (for ClickEvent)
 
+proc procInputClipAuto_Thread() {.thread.}
+  ## thread proc for input clipboard automatically.
 
 #AzureTranslaterに「翻訳元言語」「翻訳先言語」「翻訳対象ワード」を渡して実行結果を取得する
-#追加：Azureの文章翻訳、辞書翻訳、ローカル辞書翻訳のモード変更を可能とする。 
+#追加：Azureの文章翻訳、辞書翻訳、ローカル辞書翻訳のモード変更を可能とする。
 proc translateCore*(mode: string, langFrom: string, langTo: string, inputWord: string): string
-  ## Call AzureTranslater each os process.  
+  ## Call AzureTranslater each os process.
 
 #翻訳処理を行うスレッド関数。翻訳結果は格納チャンネルに送る。
 #引数の「翻訳元言語」「翻訳先言語」「翻訳対象ワード」はtranslate関数に渡される。
 proc procTranslaterThread1*(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.}
   ## thread proc for translate process
-  
+
 proc procTranslaterThread2*(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.}
   ## thread proc for translate process
-  
+
 proc procTranslaterThread3*(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.}
   ## thread proc for translate process
-  
+
 proc procTranslaterThread4*(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.}
   ## thread proc for translate process
 
@@ -191,13 +202,13 @@ app.init()
 
 #Definition of root window
 var window=newWindow("Let Me Translate!")
-window.width=670
+window.width=700
 window.height=900
 window.x=100
 window.y=50
 #window.iconPath="image/iconfinder_business-work_8_2377639.png"
 
-# Definition of window for setting Azure subscription key  
+# Definition of window for setting Azure subscription key
 var windowSetAzureKey=newWindow("Please input Azure subscription key")
 windowSetAzureKey.width=500
 windowSetAzureKey.height=100
@@ -211,15 +222,14 @@ containerSetAzureKey.add(buttonAzureKeyOK)
 containerSetAzureKey.add(buttonAzureKeyCancel)
 windowSetAzureKey.add(containerSetAzureKey)
 
-#Child Windows
+# Child window to select language
 var windowLang=newWindow("Please select language")
 windowLang.x=150
 windowLang.y=200
 windowLang.width=1020
 windowLang.height=150
 
-
-
+# North Europe languages
 var langContainerEuroN = newLayoutContainer(Layout_Vertical)
 langContainerEuroN.width=160
 langContainerEuroN.frame = newFrame("North Europe")
@@ -228,6 +238,7 @@ var buttonLegionEuroN = newButton("confirm")
 langContainerEuroN.add(comboboxEuroN)
 langContainerEuroN.add(buttonLegionEuroN)
 
+# South/Western Europe languages
 var langContainerEuroSW = newLayoutContainer(Layout_Vertical)
 langContainerEuroSW.width=160
 langContainerEuroSW.frame = newFrame("South/Western Europe")
@@ -236,6 +247,7 @@ var buttonLegionEuroSW = newButton("confirm")
 langContainerEuroSW.add(comboboxEuroSW)
 langContainerEuroSW.add(buttonLegionEuroSW)
 
+# Africa/East Europe languages
 var langContainerEuroE = newLayoutContainer(Layout_Vertical)
 langContainerEuroE.width=160
 langContainerEuroE.frame = newFrame("Africa/East Europe")
@@ -244,6 +256,7 @@ var buttonLegionEuroE = newButton("confirm")
 langContainerEuroE.add(comboboxEuroE)
 langContainerEuroE.add(buttonLegionEuroE)
 
+# Western Asia languages
 var langContainerAsiaW = newLayoutContainer(Layout_Vertical)
 langContainerAsiaW.width=160
 langContainerAsiaW.frame = newFrame("Western Asia")
@@ -252,6 +265,7 @@ var buttonLegionAsiaW = newButton("confirm")
 langContainerAsiaW.add(comboboxAsiaW)
 langContainerAsiaW.add(buttonLegionAsiaW)
 
+# East Asia languages
 var langContainerAsiaE = newLayoutContainer(Layout_Vertical)
 langContainerAsiaE.width=160
 langContainerAsiaE.frame= newFrame("East Asia")
@@ -260,6 +274,7 @@ var buttonLegionAsiaE = newButton("confirm")
 langContainerAsiaE.add(comboboxAsiaE)
 langContainerAsiaE.add(buttonLegionAsiaE)
 
+# Americas languages
 var langContainerAmericas = newLayoutContainer(Layout_Vertical)
 langContainerAmericas.width=160
 langContainerAmericas.frame= newFrame("Americas")
@@ -268,7 +283,7 @@ var buttonLegionAmericas = newButton("confirm")
 langContainerAmericas.add(comboboxAmericas)
 langContainerAmericas.add(buttonLegionAmericas)
 
-#langContainer1.frame = newFrame("Row 1: Auto-sized")
+# Add regional languages to child window
 var langContainerHorizontal = newLayoutContainer(Layout_Horizontal)
 langContainerHorizontal.add(langContainerEuroN)
 langContainerHorizontal.add(langContainerEuroSW)
@@ -281,17 +296,17 @@ windowLang.add(langContainerHorizontal)
 # Button for setting Azure key
 var buttonSetAzureKey=newButton("Set Azure subscription key")
 
-#翻訳元言語指定のテキストボックス
+# InputArea - specifying source language
 var labelTransFrom=newLabel("Translate from")
 labelTransFrom.fontSize=14
 labelTransFrom.width=100
 var inputTransFrom = newTextBox("")
 inputTransFrom.width=150
 
-# Add a ComboBox fror Language
+# Button for setting language
 var buttonSelectLangFrom=newButton("Select Language")
 
-#TextArea - input text
+# InputArea - string to be translated
 var textArea1 = newTextArea()
 textArea1.widthMode = WidthMode_Expand
 #textArea1.heightMode = HeightMode_Expand
@@ -299,20 +314,7 @@ textArea1.widthMode = WidthMode_Expand
 textArea1.height=150
 textArea1.fontSize=16
 
-#入力中にエンターキーを押すと翻訳できるようにする
-#textArea1.onKeyDown = proc(event: KeyboardEvent) =
-#  if $event.key == "Key_Return":
-#    translate()
-  
-
-
-#翻訳実行ボタン
-#var buttonTranslate=newButton("Translate InputText")
-#buttonTranslate.fontSize=16
-#buttonTranslate.width=165
-
-# 翻訳実行ボタンのカスタマイズ対応版
-# Definition of a custom button
+# Definition of a custom button for translate
 type CustomButton* = ref object of Button
 #Custom widgets need to draw themselves
 method handleDrawEvent(control: CustomButton, event: DrawEvent) =
@@ -329,14 +331,24 @@ proc newCustomButton1*(text = ""): Button =
   result = new CustomButton
   result.init()
   result.text = text
-  
+
+# A custom button for translate
 var buttonTranslate=newCustomButton1("Translate")
 buttonTranslate.fontSize=16
 buttonTranslate.width=165
 
-#ボタン間隔調整用の空ラベル
-var labelSpace=newLabel("")
-labelSpace.width=250
+# This label adjusts the spacing between buttons
+#var labelSpace=newLabel("")
+#labelSpace.width=250
+
+# Checkbox for clear input:
+var checkboxAutoClear = newCheckbox("Clear input after translation")
+
+# Checkbox for automatically read clipboard
+var checkboxAutoClip = newCheckbox("Automatically input from clipboard")
+
+# Checkbox for press the Enter key to translate
+var checkboxEnterTranslate = newCheckbox("Translate when the Enter key is pressed")
 
 #クリップボードの内容を翻訳対象として読み込むボタン
 var buttonLoadClipboard=newButton("Translate Clipboard")
@@ -344,6 +356,7 @@ buttonLoadClipboard.fontSize=14
 buttonLoadClipboard.width=165
 
 # end of container of input text
+
 
 # start of container of translate result
 
@@ -431,12 +444,20 @@ conTransFromLangCode.add(inputTransFrom)
 #langage button
 conTransFromLangCode.add(buttonSelectLangFrom)
 
+#横配列コンテナ(チェック)
+var conTransCheck = newLayoutContainer(Layout_Horizontal)
+conTransCheck.widthMode = WidthMode_Expand
+conTransCheck.xAlign = XAlign_Spread
+conTransCheck.add(checkboxAutoClear)
+conTransCheck.add(checkboxAutoClip)
+conTransCheck.add(checkboxEnterTranslate)
+
 #横配列コンテナ(翻訳ボタン)
 var conTransButtons = newLayoutContainer(Layout_Horizontal)
 conTransButtons.widthMode = WidthMode_Expand
 conTransButtons.xAlign = XAlign_Spread
 conTransButtons.add(buttonLoadClipboard)
-conTransButtons.add(labelSpace)
+#conTransButtons.add(labelSpace)
 conTransButtons.add(buttonTranslate)
 
 #縦コンテナ(翻訳元情報)
@@ -445,6 +466,7 @@ conTransFrom.frame = newFrame("Input Text")
 conTransFrom.add(conTransAzure)
 conTransFrom.add(conTransFromLangCode)
 conTransFrom.add(textArea1)
+conTransFrom.add(conTransCheck)
 conTransFrom.add(conTransButtons)
 
 
@@ -496,6 +518,14 @@ container.add(conTranslateResult)
 #container.setPosition(10,10)
 window.add(container)
 
+# Press Enter to run the translation
+textArea1.onKeyDown = proc(event: KeyboardEvent) =
+  #Does not support simultaneous button presses
+  #if $event.key == "Key_Return" and $event.Key == "Key_ShiftL" :
+  if checkboxEnterTranslate.checked and $event.key == "Key_Return":
+    #echo $event.key
+    translate()
+
 #Container focus setting
 focus(textArea1)
 
@@ -506,35 +536,39 @@ focus(textArea1)
 
 # define procedures
 
-# Clipboard Getter
-proc getClipboard() =
-  var clipboardText = ""
-
+# This procedure is outdated. Please use the clipboard functionality provided by libclip instead.
+proc getClipboard(): string =
+  var resultString = ""
   case hostOS
   of "windows":
     let (outp, errC) = execCmdEx("getClipboard.exe", options = {poDaemon})
-    clipboardText = $outp
+    resultString = $outp
     if(errC == 1):
-      return
+      return "clipboard.exe returned error code:" & $errC
   #of "linux":
-    #clipboardText = app.clipboardText()
+    #clipboardText1 = app.clipboardText()
   else:
-    clipboardText = app.clipboardText()
-        
-  textArea1.text = clipboardText
+    # NiGui function. But not support windows.
+    echo "exec app"
+    #echo app.clipboardText()
+    {.gcsafe.}:
+      let clipData = app.clipboardText()
+      resultString = clipData
+  return resultString
+
+
 
 # translate form Clipboard
 proc translateClipboard() =
-  getClipboard()
+  textArea1.text = getClipboardText()
   translate()
 
 
 #Definition of Event when button click
 proc translateClipboard(ev:ClickEvent)=
   # copy clipboard to input textarea. (for ClickEvent)
-  
   translateClipboard()
-  
+
 
 
 
@@ -584,24 +618,45 @@ proc translateCore(mode: string, langFrom: string, langTo: string, inputWord: st
 
   result = translatedText
 
+# Thread function for input clipboard automatically
+proc procInputClipAuto_Thread(){.thread.} =
+  var clipboardLast = ""
+  var clipboardNow = ""
+  while inputClipboardAuto:
+    {.gcsafe.}:
+      #echo "checkbox:" & $checkboxAutoClip.checked & ",inputClipboardAuto:" & $inputClipboardAuto
+      if checkboxAutoClip.checked and runningTranslation == false:
+        #echo "get clipboard"
+        # Since NiGui's `app.clipboardText()` never returns a result when called from a thread, use a different method instead.
+        # I plan to use libclip
+        clipboardNow = getClipboardText()
+        if clipboardNow != clipboardLast:
+          textArea1.text = clipboardNow
+          clipboardLast = clipboardNow
+        #echo "get clipboard finish"
+      #else:
+        #echo "skip clipboard"
+      sleep(2000)
+
+
 # Thread function does when performing a translation
 proc procTranslaterThread1(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.} =
   channel1.send(translateCore(args.mode,args.langFrom,args.langTo,args.inputWord))
 proc procTranslaterThread2(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.} =
   channel2.send(translateCore(args.mode,args.langFrom,args.langTo,args.inputWord))
 proc procTranslaterThread3(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.} =
-  channel3.send(translateCore(args.mode,args.langFrom,args.langTo,args.inputWord))  
+  channel3.send(translateCore(args.mode,args.langFrom,args.langTo,args.inputWord))
 proc procTranslaterThread4(args: tuple[mode,langFrom,langTo, inputWord: string]) {.thread.} =
   channel4.send(translateCore(args.mode,args.langFrom,args.langTo,args.inputWord))
 
 
-# Main function for translation 
+# Main function for translation
 proc translate() =
- 
+
   if inputTransTo1.text == "" and inputTransTo2.text == "" and inputTransTo3.text == "" and inputTransTo4.text == "":
     #window.alert("言語指定(Translate to)が全て空白です。最低でも一つは入力して下さい。")
     window.alert("All language selections (Translate to) are blank. Please enter at least one.")
-  else:  
+  else:
     var inputString = $textArea1.text
     var
       output1: string
@@ -609,7 +664,9 @@ proc translate() =
       output3: string
       output4: string
     #echo "inputString[", inputString,"]"
-    
+
+    runningTranslation = true
+
     # update config.ini
     config.setSectionKey("Azure", "subscriptionKey", azureKey)
     config.setSectionKey("LetMeTranslate", "from", inputTransFrom.text)
@@ -618,21 +675,21 @@ proc translate() =
     config.setSectionKey("LetMeTranslate", "to3", inputTransTo3.text)
     config.setSectionKey("LetMeTranslate", "to4", inputTransTo4.text)
     config.writeConfig(configFilename)
-    
+
     for word in inputString.splitWhitespace(maxsplit = -1):
-      #echo "split result:",word  
-      
-      
+      #echo "split result:",word
+
+
       # Execute translaton threads
       if inputTransTo1.text != "":
-        createThread(threadTranslater1, procTranslaterThread1, ("mode_azure",inputTransFrom.text, inputTransTo1.text, word))        
+        createThread(threadTranslater1, procTranslaterThread1, ("mode_azure",inputTransFrom.text, inputTransTo1.text, word))
       if inputTransTo2.text != "":
         createThread(threadTranslater2, procTranslaterThread2, ("mode_azure",inputTransFrom.text, inputTransTo2.text, word))
       if inputTransTo3.text != "":
         createThread(threadTranslater3, procTranslaterThread3, ("mode_azure",inputTransFrom.text, inputTransTo3.text, word))
       if inputTransTo4.text != "":
         createThread(threadTranslater4, procTranslaterThread4, ("mode_azure",inputTransFrom.text, inputTransTo4.text, word))
-        
+
       # Get translation results of each threads.
       # Results contain \n. So use addText() instead addLine().
       if inputTransTo1.text != "":
@@ -642,26 +699,29 @@ proc translate() =
         textAreaOutput1.scrollToBottom()
         #logFile.writeLine(inputTransFrom.text & ">" & inputTransTo1.text & ": " & output1)
       if inputTransTo2.text != "":
-        joinThread(threadTranslater2)        
+        joinThread(threadTranslater2)
         output2 = channel2.recv()
         textAreaOutput2.addText(output2)
         textAreaOutput2.scrollToBottom()
         #logFile.writeLine(inputTransFrom.text & ">" & inputTransTo2.text & ": " & output2)
       if inputTransTo3.text != "":
-        joinThread(threadTranslater3)        
+        joinThread(threadTranslater3)
         output3 = channel3.recv()
         textAreaOutput3.addText(output3)
         textAreaOutput3.scrollToBottom()
         #logFile.writeLine(inputTransFrom.text & ">" & inputTransTo3.text & ": " & output3)
       if inputTransTo4.text != "":
-        joinThread(threadTranslater4)        
+        joinThread(threadTranslater4)
         output4 = channel4.recv()
         textAreaOutput4.addText(output4)
         textAreaOutput4.scrollToBottom()
         #logFile.writeLine(inputTransFrom.text & ">" & inputTransTo4.text & ": " & output4)
-    
+
     #clear inputText
-    textArea1.text=""
+    if checkboxAutoClear.checked:
+      textArea1.text=""
+
+    runningTranslation = false
 
 
 #Definition of Translate Button
@@ -673,29 +733,29 @@ proc setAzureKeyOK(ev:ClickEvent) =
   config.setSectionKey("Azure", "subscriptionKey", azureKey)
   config.writeConfig(configFilename)
   windowSetAzureKey.hide()
-  
+
 proc setAzureKeyCancel(ev:ClickEvent) =
   windowSetAzureKey.hide()
 
 proc translateButton(ev:ClickEvent) =
   translate()
-  
+
 proc selectLangButtonFrom(ev:ClickEvent) =
   windowLang.show()
   buttonStatus = langFrom
-  
+
 proc selectLangButtonTo1(ev:ClickEvent) =
   windowLang.show()
   buttonStatus = langTo1
-  
+
 proc selectLangButtonTo2(ev:ClickEvent) =
   windowLang.show()
   buttonStatus = langTo2
-  
+
 proc selectLangButtonTo3(ev:ClickEvent) =
   windowLang.show()
   buttonStatus = langTo3
-  
+
 proc selectLangButtonTo4(ev:ClickEvent) =
   windowLang.show()
   buttonStatus = langTo4
@@ -707,7 +767,10 @@ proc cleanup() =
   channel2.close()
   channel3.close()
   channel4.close()
-  
+  inputClipboardAuto = false
+  joinThreads(threadBackground)
+
+
 proc quitWindowLang(event: CloseClickEvent) =
   windowLang.hide()
 
@@ -724,8 +787,8 @@ proc quitProcess(event: CloseClickEvent) =
     discard
   else:
     discard
-    
-  
+
+
 proc selectLangFromRegion*(code: string, ev: ClickEvent) =
   case buttonStatus
   of langFrom:
@@ -784,7 +847,7 @@ buttonLoadClipboard.onClick=translateClipboard
 buttonTranslate.onClick=translateButton
 
 windowLang.onCloseClick=quitWindowLang
-window.onCloseClick=quitProcess 
+window.onCloseClick=quitProcess
 
 
 # main process
@@ -828,9 +891,7 @@ inputTransTo2.text = config.getSectionValue("LetMeTranslate","to2")
 inputTransTo3.text = config.getSectionValue("LetMeTranslate","to3")
 inputTransTo4.text = config.getSectionValue("LetMeTranslate","to4")
 
-#"app.clipboardText:String" is NiGui function
-#textArea1.text = app.clipboardText()
-getClipboard()
+createThread(threadBackground, procInputClipAuto_Thread)
 
 #these channels catch result of translation thread
 channel1.open()
@@ -851,4 +912,3 @@ else:
     cleanup()
 
 # end of process
-
